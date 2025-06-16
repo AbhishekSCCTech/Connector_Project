@@ -50,4 +50,4 @@ def visualization():
 if __name__ == "__main__":
     LOG_FOLDER = r"F:\Log viwer Project\TeklaExternalLogFiles"
     start_watching(LOG_FOLDER, process_log_lines)
-    app.run(port=5021, debug=True)
+    app.run(port=5022, debug=True)

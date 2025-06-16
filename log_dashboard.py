@@ -22,4 +22,4 @@ def index():
     return render_template("dashboard.html", rows=rows)
 
 if __name__ == "__main__":
-    app.run(debug=True, port=5054)
+    app.run(port=5022, debug=True)

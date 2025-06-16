@@ -21,8 +21,15 @@ read_failed_pattern = re.compile(
     r"FailedItemsToReadObjects\s*:\s*(?P<failed_item>.+)"
 )
 
-# ------------------- Process Function -------------------
+# --- Exchange Name Patterns ---
+exchange_name_pattern_1 = re.compile(
+    r"Exchange Name\s*:\s*(?P<exchange_name>.+?)\s+Exchange ID"
+)
+exchange_name_pattern_2 = re.compile(
+    r"Exchange creation started.*?\|\s*Exchange Name\s*:\s*(?P<exchange_name>\S+)"
+)
 
+# ------------------- Process Function -------------------
 def process_log_lines(filepath, lines):
     print("Connecting to DB...")
     conn = mysql.connector.connect(
@@ -34,14 +41,15 @@ def process_log_lines(filepath, lines):
     cursor = conn.cursor()
 
     sql = """
-    INSERT INTO logger_Table (
-        filename, log_date, log_time, log_level, operation_type, method,
-        message_type, model_object, guid, failed_item, message, raw_message
-    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        INSERT INTO logger_Table (
+            filename, log_date, log_time, log_level, operation_type, method,
+            message_type, model_object, guid, failed_item, message, raw_message, exchange_name
+        ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
     """
 
     filename = os.path.basename(filepath)
     print(f"\n[INFO] Processing file: {filename}")
+    current_exchange_name = None
 
     for idx, line in enumerate(lines):
         line = line.strip()
@@ -69,6 +77,19 @@ def process_log_lines(filepath, lines):
                 guid = None
                 failed_item = None
 
+                # ✅ Try both patterns to capture exchange name
+                exch_match1 = exchange_name_pattern_1.search(message)
+                exch_match2 = exchange_name_pattern_2.search(message)
+
+                if exch_match1:
+                    current_exchange_name = exch_match1.group("exchange_name").strip()
+                    print(f"[Line {idx+1}] ✅ Exchange Name (Read format) FOUND: '{current_exchange_name}'")
+                elif exch_match2:
+                    current_exchange_name = exch_match2.group("exchange_name").strip()
+                    print(f"[Line {idx+1}] ✅ Exchange Name (Write format) FOUND: '{current_exchange_name}'")
+                else:
+                    print(f"[Line {idx+1}] ❌ No exchange name matched for message: {message}")
+
                 # Nested model_object parsing
                 if "Unsupported ModelObject" in message:
                     model_match = model_object_pattern.search(message)
@@ -78,7 +99,6 @@ def process_log_lines(filepath, lines):
                         guid = model_match.group('guid')
                         message_type = "Unsupported ModelObject"
 
-                # Nested read_failed parsing
                 elif "FailedItemsToReadObjects" in message:
                     failed_match = read_failed_pattern.search(message)
                     if failed_match:
@@ -88,11 +108,10 @@ def process_log_lines(filepath, lines):
 
                 values = (
                     filename, date_obj, time_obj, log_level, operation_type, method,
-                    message_type, model_object, guid, failed_item, message, line
+                    message_type, model_object, guid, failed_item, message, line, current_exchange_name
                 )
 
-                print(f"[Line {idx+1}] Prepared values for DB insert: {values}")
-
+                print(f"[Line {idx+1}] Inserting exchange_name: {current_exchange_name}")
                 cursor.execute(sql, values)
                 print(f"[Line {idx+1}] Insert SUCCESS ✅")
 
