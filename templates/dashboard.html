@@ -45,7 +45,33 @@
      <button type="button">Go to Visualization</button>
   </a>
 
-  
+  <div class="filter-section">
+    <form method="GET" action="/">
+        <label>Connector:</label>
+        <select name="connector">
+            <option value="">All</option>
+            <option value="Rhino Connector">Rhino Connector</option>
+            <option value="Tekla Connector">Tekla Connector</option>
+        </select>
+
+        <label for="operation_type">Operation Type:</label>
+        <select name="operation_type" id="operation_type">
+            <option value="">All</option>
+            <option value="Read">Read</option>
+            <option value="Write">Write</option>
+        </select>
+
+        <label>Exchange Name:</label>
+        <input type="text" name="exchange_name">
+
+        <label>From Date:</label>
+        <input type="date" name="from_date">
+
+        <label>To Date:</label>
+        <input type="date" name="to_date">
+
+        <button type="submit">Submit</button>
+    </form> 
   
  
     <table id="logTable" class="display responsive nowrap" style="width:100%">
