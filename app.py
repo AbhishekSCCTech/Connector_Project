@@ -23,7 +23,7 @@ def details():
     
     query = """
         SELECT log_date, log_time, message
-        FROM logger_Table
+        FROM logger_Table_New2
         WHERE filename = %s AND log_level = %s
     """
     cursor.execute(query, (filename, level))
@@ -38,7 +38,7 @@ def visualization():
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
     
-    cursor.execute("SELECT * FROM logger_Table")
+    cursor.execute("SELECT * FROM logger_Table_New2")
     rows = cursor.fetchall()
     print("Visualization route working!")
 
@@ -47,7 +47,10 @@ def visualization():
     
     return render_template("visualization.html", rows=rows)
 
+
+
+
 if __name__ == "__main__":
-    LOG_FOLDER = r"F:\Log viwer Project\TeklaExternalLogFiles"
+    LOG_FOLDER = r"F:\Log viwer Project\Trial\exactlogges"
     start_watching(LOG_FOLDER, process_log_lines)
     app.run(port=5022, debug=True)

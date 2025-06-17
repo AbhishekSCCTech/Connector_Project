@@ -15,11 +15,12 @@ def get_db_connection():
 def index():
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
-    cursor.execute("SELECT * FROM logger_Table LIMIT 1000")
+    #cursor.execute("SELECT * FROM logger_Table LIMIT 1000")
+    cursor.execute("SELECT id, filename, log_date, log_time, log_level, exchange_name, operation_type, method, message_type, model_object, message FROM logger_Table_New2")
     rows = cursor.fetchall()
     cursor.close()
     conn.close()
     return render_template("dashboard.html", rows=rows)
 
 if __name__ == "__main__":
-    app.run(port=5022, debug=True)
+    app.run(port=5025, debug=True)

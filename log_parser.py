@@ -41,7 +41,7 @@ def process_log_lines(filepath, lines):
     cursor = conn.cursor()
 
     sql = """
-        INSERT INTO logger_Table (
+        INSERT INTO logger_Table_New2 (
             filename, log_date, log_time, log_level, operation_type, method,
             message_type, model_object, guid, failed_item, message, raw_message, exchange_name
         ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
@@ -77,18 +77,22 @@ def process_log_lines(filepath, lines):
                 guid = None
                 failed_item = None
 
-                # ✅ Try both patterns to capture exchange name
-                exch_match1 = exchange_name_pattern_1.search(message)
+                # First: check if the current message contains Exchange Name directly (WRITE format)
                 exch_match2 = exchange_name_pattern_2.search(message)
-
-                if exch_match1:
-                    current_exchange_name = exch_match1.group("exchange_name").strip()
-                    print(f"[Line {idx+1}] ✅ Exchange Name (Read format) FOUND: '{current_exchange_name}'")
-                elif exch_match2:
+                if exch_match2:
                     current_exchange_name = exch_match2.group("exchange_name").strip()
                     print(f"[Line {idx+1}] ✅ Exchange Name (Write format) FOUND: '{current_exchange_name}'")
+
+                # Second: for READ logs — we expect exchange name to appear in the NEXT line
+                elif "Exchange Name :" in message and "Exchange ID :" in message:
+                    exch_match1 = exchange_name_pattern_1.search(message)
+                    if exch_match1:
+                        current_exchange_name = exch_match1.group("exchange_name").strip()
+                        print(f"[Line {idx+1}] ✅ Exchange Name (Read format) FOUND: '{current_exchange_name}'")
+
                 else:
                     print(f"[Line {idx+1}] ❌ No exchange name matched for message: {message}")
+
 
                 # Nested model_object parsing
                 if "Unsupported ModelObject" in message:
