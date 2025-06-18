@@ -45,7 +45,7 @@ def index():
     to_date = request.args.get("to_date")
 
     # Query for log data
-    query = "SELECT id, filename, log_date, log_time, log_level, exchange_name, operation_type, method, message_type, model_object, message FROM logger_Table_New2 WHERE 1=1"
+    query = "SELECT id, filename, log_date, log_time, log_level, exchange_name, operation_type, method, model_object, message FROM logger_Table_New2 WHERE 1=1"
     params = []
 
     if exchange_name:
@@ -65,8 +65,9 @@ def index():
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
 
-    cursor.execute("SELECT DISTINCT exchange_name FROM log_Tekla_Table WHERE exchange_name IS NOT NULL AND exchange_name != ''")
+    cursor.execute("SELECT DISTINCT exchange_name FROM logger_Table_New2 WHERE exchange_name IS NOT NULL AND exchange_name != ''")
     exchange_names = [row["exchange_name"] for row in cursor.fetchall()]
+    print("Exchange names:", exchange_names)
 
     cursor.execute(query, params)
     rows = cursor.fetchall()

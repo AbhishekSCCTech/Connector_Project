@@ -44,7 +44,8 @@
   <a href="/visualization">
      <button type="button">Go to Visualization</button>
   </a>
-
+  <br>
+  <br>
   <div class="filter-section">
     <form method="GET" action="/">
         <label>Connector:</label>
@@ -61,8 +62,19 @@
             <option value="Write">Write</option>
         </select>
 
-        <label>Exchange Name:</label>
+        <!--<label>Exchange Name:</label>
         <input type="text" name="exchange_name">
+    -->
+
+        <label for="exchange_name">Exchange Name:</label>
+        <select name="exchange_name" id="exchange_name" onchange="this.form.submit()">
+            <option value="">-- All --</option>
+            {% for name in exchange_names %}
+                <option value="{{ name }}" {% if name == selected_exchange %}selected{% endif %}>
+                    {{ name }}
+                </option>
+            {% endfor %}
+        </select>
 
         <label>From Date:</label>
         <input type="date" name="from_date">
@@ -72,7 +84,7 @@
 
         <button type="submit">Submit</button>
     </form> 
-  
+  <br>
  
     <table id="logTable" class="display responsive nowrap" style="width:100%">
         <thead>
