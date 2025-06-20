@@ -76,6 +76,15 @@
             {% endfor %}
         </select>
 
+        <form method="get" action="/">
+            <label for="log_folder">Select Folder:</label>
+            <select name="log_folder" id="log_folder" onchange="this.form.submit()">
+                {% for folder in subfolders %}
+                    <option value="{{ folder }}" {% if folder == selected_folder %}selected{% endif %}>{{ folder }}</option>
+                {% endfor %}
+            </select>
+        </form>
+
         <label>From Date:</label>
         <input type="date" name="from_date">
 
@@ -149,5 +158,33 @@
             });
         });
     </script>
+<!--
+    <form method="get" action="/">
+        <label for="log_folder">Select Folder:</label>
+        <select name="log_folder" id="log_folder" onchange="this.form.submit()">
+            {% for folder in subfolders %}
+                <option value="{{ folder }}" {% if folder == selected_folder %}selected{% endif %}>{{ folder }}</option>
+            {% endfor %}
+        </select>
+    </form>
+-->
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Filename</th>
+                <th>Open</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for file in txt_files %}
+            <tr>
+                <td>{{ file }}</td>
+                <td>
+                    <a href="{{ url_for('view_log', folder=selected_folder, filename=file) }}" target="_blank">Open</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 </body>
 </html>
